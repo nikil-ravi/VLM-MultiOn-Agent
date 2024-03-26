@@ -37,7 +37,7 @@ The overall flow is as follows:
 I tested it with around 10 images, and the agent got 6 of them right, end-to-end. These included buying a coffee machine on Target/Amazon, getting pizza from Doordash, and Venmoing Div an amount of money shown in a receipt (I didn't finish this task :) ).
 
 One task it failed on was when I asked to to send Div a message on X.com- that is, I uploaded a picture of Div's profile, and 
-asked the agent to send the person in the picture a message on X. It failed to do this due to errors in the OCR model, which recognized Div's name incorrectly. Additionally, the model failed on 
+asked the agent to send the person in the picture a message on X. It failed to do this due to errors in the OCR model, which recognized Div's name incorrectly.
 
 In the future, I would like to have more capabilities for planning and also for re-planning, in case the agent fails.
 
