@@ -2,25 +2,26 @@ Setup: After installing requirements, run ```uvicorn main:app --reload``` to get
 
 You will also need to download models to these paths:
 ```processor = BlipProcessor.from_pretrained('./blip_model_processor')
-    model = BlipForConditionalGeneration.from_pretrained('./blip_model_cond_gen').to(device)
+model = BlipForConditionalGeneration.from_pretrained('./blip_model_cond_gen').to(device)
 ```
 Alternatively, you may change the code to download the models directly- 
 this is easy to do in img2multion.py.
 
-Examples:
+# Examples:
 
-Image: ![Pizza-Image](./imgs/pizza.jpeg)
-order this food on Doordash
+"order this on Doordash"\
+![Pizza-Image](./imgs/pizza.jpeg)
 
-
+"zelle the total on this receipt to Div Garg"\
 Image: ![Receipt](./imgs/receipt.jpeg)
-zelle the total on this receipt to Div Garg
 
+"buy this on amazon"\
 Image: ![CoffeeMachine](./imgs/coffeemachine.jpg)
-buy this on amazon
 
+"apply to multion by following the message"
 Image: ![MultiOnJob](./imgs/multion-new-message.png)
-apply to multion by following the message
+
+# Approach
 
 My approach essentially uses two models. First, in order to
 be able to recognize obbjects in images, I use the BLIP VLM available
