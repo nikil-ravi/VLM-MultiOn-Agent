@@ -1,56 +1,47 @@
-# MULTI·ON API: Next-Gen Web AI Agents 🚀
+Setup: After installing requirements, run ```uvicorn main:app --reload``` to get the API up and running. You can upload an image and (optionally) enter text.
 
-👋 Welcome to the official GitHub repository of the MultiOn API. 
+You will also need to download models to these paths:
+```processor = BlipProcessor.from_pretrained('./blip_model_processor')
+    model = BlipForConditionalGeneration.from_pretrained('./blip_model_cond_gen').to(device)
+```
+Alternatively, you may change the code to download the models directly- 
+this is easy to do in img2multion.py.
 
-Unlock the next generation of web automation and build custom AI agents that can perform complex actions on the internet with just a few lines of code.
+Examples:
 
-Featured in **TechCrunch**, **Hacker News**, and integrated with popular toolkits like **LangChain** and **LlamaIndex**, MultiOn API is rapidly becoming the go-to solution for developers worldwide for AI web automation.
+Image: ![Pizza-Image](./imgs/pizza.jpeg)
+order this food on Doordash
 
-Looking for Inspiration? Check out our [Examples](https://github.com/MULTI-ON/api/tree/main/examples).
 
-Need Help? Dive into the comprehensive [Docs](https://docs.multion.ai).
+Image: ![Receipt](./imgs/receipt.jpeg)
+zelle the total on this receipt to Div Garg
 
-## 📰 Media Coverage
+Image: ![CoffeeMachine](./imgs/coffeemachine.jpg)
+buy this on amazon
 
-MultiOn has been featured in numerous [tech publications](https://www.reuters.com/technology/race-towards-autonomous-ai-agents-grips-silicon-valley-2023-07-17/) and has received positive reviews for its innovative approach to AI and web interactions. Our media coverage is a testament to our commitment to pushing the boundaries of what's possible with AI and the web.
+Image: ![MultiOnJob](./imgs/multion-new-message.png)
+apply to multion by following the message
 
-## 🌟 Features
-- 🚀 **Effortless Web Automation**: Navigate, scrape, and manipulate the web with ease.
-- 🤖 **AI Agents**: Build and deploy custom AI agents for complex tasks.
-- 🛠 **SDK Support**: Native Python and JavaScript SDKs available.
-- 💡 **Rich Ecosystem**: Seamlessly integrate with LangChain, LlamaIndex, and more.
-- 🌐 **Global Community**: Get support and collaborate with like-minded developers in our Discord.
+My approach essentially uses two models. First, in order to
+be able to recognize obbjects in images, I use the BLIP VLM available
+here: https://huggingface.co/Salesforce/blip-image-captioning-large.
+This was pre-trained on MS-COCO. However, I'd also like to be able to recognize text *within* images. Therefore, I also used https://huggingface.co/jinhybr/OCR-Donut-CORD?library=true, which is an OCR model that worked reasonably well, at least in my tests.
 
-## ⚙️ Use
-Our API is designed with developers in mind, providing a seamless integration experience. Whether you're a seasoned developer or just starting out, you'll find our API easy to use and highly flexible. 
+The overall flow is as follows:
+- The user uploads an image, along with text (this is optional, but useful to convey task/intention), and this is sent to the FastAPI backend
+- The image is processed, and run through *two models*- the BLIP VLM, as well as the OCR model. This way, I capture both objects and text in the images. Both aspects might be essential to the task at hand.
+- Then, I convert the user's input text, along with the image caption and OCR text, into a prompt (can be found in img2text() in img2multion.py) that I send to GPT-3.5-Turbo via an API call. The response is the command I send to the MultiOn API.
+- The prompt I have uses in-context learning, and I did have to play with prompt-engineering for some time to get it right. It would be useful to introduce chain-of-thought style reasoning here- for example, I might want to upload a picture of a receipt at a restaurant and tell the agent to split the bill in a certain ratio, which might require some reasoning.
 
-We provide a **Python** and **JS SDK** to build on top of the MultiOn API and seamlessly integrate with top toolkits such as [LangChain](https://python.langchain.com/docs/integrations/toolkits/multion) and [LLamaIndex](https://twitter.com/llama_index/status/1700221470427754610).
+I tested it with around 10 images, and the agent got 6 of them right, end-to-end. These included buying a coffee machine on Target/Amazon, getting pizza from Doordash, and Venmoing Div an amount of money shown in a receipt (I didn't finish this task :) ).
 
-We are continuously working on integrating with more toolkits to provide a versatile and robust platform for our developers.
+One task it failed on was when I asked to to send Div a message on X.com- that is, I uploaded a picture of Div's profile, and 
+asked the agent to send the person in the picture a message on X. It failed to do this due to errors in the OCR model, which recognized Div's name incorrectly. Additionally, the model failed on 
 
-Join us in our journey and give us a star if you find our project useful!
+In the future, I would like to have more capabilities for planning and also for re-planning, in case the agent fails.
 
-##  🤝 Support
+One ambitious idea I thought of while implementing this was to potentially integrate my own history. For example, I have rewind.ai (https://www.rewind.ai/) on my Mac, and that has a compressed version of my browsing history for the past few months. It would be very cool if MultiOn could query rewind and get crucial browsing patterns which MultiOn could then copy. This would lead to more personalization, which ultimately translates to more ease-of-use and better accuracy.
 
-We understand that even the best APIs can be challenging to use. That's why we offer comprehensive documentation and a supportive Discord community to help you get started. 
-
-If you have any questions or run into any issues, don't hesitate to reach out to us at [tech@multion.ai](mailto:tech@multion.ai).
-
-## 📚 Documentation
-
-For more advanced use-cases, and detailed explanations, please refer to our [Official Documentation](https://docs.multion.ai).
-
-We're excited to see what you build with MULTI·ON API!
-
-**Minimum supported version of langchain to run the langchain examples: v0.0.265**
-
-## 📜 Terms
-By using this repository, you agree to our [Terms of Service](https://www.notion.so/multion/Terms-of-Use-83d64a46cd2c4a66aacff2c29b02ef70).
-
-- 🌐 Community Discord
-- 🙌 Contributing Guidelines
-- 🐞 Issue Tracker
-
-##
-
-❤️ Loved MultiOn API? Give us a star to spread the word! ⭐️
+The video is not yet uploaded since I ran into this error with the API while attempting to record it, even though the same code worked just a bit earlier:
+Server Disconnected. Please press connect in the
+                      Multion extension popup
